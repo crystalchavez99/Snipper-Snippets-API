@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "hU2RASnWwYmCZMGfeXbHtyRjEVKPgNb4WGU8XxpeFaPleLTbIFz+Jzev49aChEsT6oRRujfpgKE4ddGFkpwsag==",
+  "dgSpecHash": "XJPRu8SiWdd+k42XfuV3odiV6ehNybojzTtdvniEOFqbHNEbBXplDoNw3lrn6tF8L9TeP6tILFB1ys6l8Gc5UQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\CChavez\\Documents\\Multiverse\\Back-End-Module\\Snipper-Snippet\\Snipper Snippet API\\Snipper Snippet API.csproj",
   "expectedPackageFiles": [
@@ -20,10 +20,13 @@
     "C:\\Users\\CChavez\\.nuget\\packages\\microsoft.extensions.primitives\\7.0.0\\microsoft.extensions.primitives.7.0.0.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\microsoft.openapi\\1.4.3\\microsoft.openapi.1.4.3.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.19.5\\microsoft.visualstudio.azure.containers.tools.targets.1.19.5.nupkg.sha512",
+    "C:\\Users\\CChavez\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\swashbuckle.aspnetcore\\6.5.0\\swashbuckle.aspnetcore.6.5.0.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.5.0\\swashbuckle.aspnetcore.swagger.6.5.0.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.5.0\\swashbuckle.aspnetcore.swaggergen.6.5.0.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.5.0\\swashbuckle.aspnetcore.swaggerui.6.5.0.nupkg.sha512",
+    "C:\\Users\\CChavez\\.nuget\\packages\\system.text.encodings.web\\7.0.0\\system.text.encodings.web.7.0.0.nupkg.sha512",
+    "C:\\Users\\CChavez\\.nuget\\packages\\system.text.json\\7.0.4\\system.text.json.7.0.4.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.15\\microsoft.windowsdesktop.app.ref.7.0.15.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.15\\microsoft.netcore.app.ref.7.0.15.nupkg.sha512",
     "C:\\Users\\CChavez\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.15\\microsoft.aspnetcore.app.ref.7.0.15.nupkg.sha512",
