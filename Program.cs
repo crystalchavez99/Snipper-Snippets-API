@@ -1,8 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using Snipper_Snippet_API.Controllers;
+using Snipper_Snippet_API.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddDbContext<SnippetContext>(opt =>
+    opt.UseInMemoryDatabase("SnipperSnippets"));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
