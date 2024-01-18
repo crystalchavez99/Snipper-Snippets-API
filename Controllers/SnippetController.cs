@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using Snipper_Snippet_API.Models;
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Snipper_Snippet_API.Controllers
@@ -10,7 +12,7 @@ namespace Snipper_Snippet_API.Controllers
     {
         // GET: api/<SnippetController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public ActionResult<Snippet> GetAll()
         {
             return new string[] { "value1", "value2" };
         }
