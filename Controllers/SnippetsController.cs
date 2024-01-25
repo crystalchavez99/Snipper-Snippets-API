@@ -159,7 +159,7 @@ namespace Snipper_Snippet_API.Controllers
                     {
                         using (StreamReader swEncrypt = new StreamReader(csDecrypt))
                         {
-                            swEncrypt.ReadToEnd();
+                            return swEncrypt.ReadToEnd();
                         }
                     }
                 }
