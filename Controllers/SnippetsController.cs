@@ -48,6 +48,8 @@ namespace Snipper_Snippet_API.Controllers
                 return NotFound();
             }
 
+            snippet.Code = Decrypt(snippet.Code);
+
             return snippet;
         }
 
@@ -138,6 +140,28 @@ namespace Snipper_Snippet_API.Controllers
                         }
                     }
                     return Convert.ToBase64String(msEncrypt.ToArray());
+                }
+            }
+        }
+
+        public string Decrypt(string encryptedText)
+        {
+            byte[] key = Encoding.UTF8.GetBytes("temporary_secret_key");
+            byte[] iv = Encoding.UTF8.GetBytes("temporary_init_vector");
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(encryptedText)))
+                {
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (StreamReader swEncrypt = new StreamReader(csDecrypt))
+                        {
+                            swEncrypt.ReadToEnd();
+                        }
+                    }
                 }
             }
         }
