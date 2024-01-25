@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +17,7 @@ namespace Snipper_Snippet_API.Controllers
     {
         private readonly SnippetContext _context;
 
-        public SnippetsController(SnippetContext context)
+            public SnippetsController(SnippetContext context)
         {
             _context = context;
         }
@@ -45,6 +47,8 @@ namespace Snipper_Snippet_API.Controllers
             {
                 return NotFound();
             }
+
+            snippet.Code = Decrypt(snippet.Code);
 
             return snippet;
         }
@@ -85,6 +89,8 @@ namespace Snipper_Snippet_API.Controllers
         [HttpPost]
         public async Task<ActionResult<Snippet>> PostSnippet(Snippet snippet)
         {
+            string EncryptCode = Encrypt(snippet.Code);
+            snippet.Code = EncryptCode;
             _context.Snippets.Add(snippet);
             await _context.SaveChangesAsync();
 
@@ -114,6 +120,50 @@ namespace Snipper_Snippet_API.Controllers
         private bool SnippetExists(int id)
         {
             return (_context.Snippets?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private string Encrypt(string plainText)
+        {
+            byte[] key = Encoding.UTF8.GetBytes("temporary_secret_key");
+            byte[] iv = Encoding.UTF8.GetBytes("temporary_init_vector");
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                using (MemoryStream msEncrypt = new MemoryStream())
+                {
+                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                        {
+                            swEncrypt.Write(plainText);
+                        }
+                    }
+                    return Convert.ToBase64String(msEncrypt.ToArray());
+                }
+            }
+        }
+
+        public string Decrypt(string encryptedText)
+        {
+            byte[] key = Encoding.UTF8.GetBytes("temporary_secret_key");
+            byte[] iv = Encoding.UTF8.GetBytes("temporary_init_vector");
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(encryptedText)))
+                {
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (StreamReader swEncrypt = new StreamReader(csDecrypt))
+                        {
+                            swEncrypt.ReadToEnd();
+                        }
+                    }
+                }
+            }
         }
     }
 }
