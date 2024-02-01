@@ -94,7 +94,7 @@ namespace Snipper_Snippet_API.Controllers
             user.Password = Hashing(user.Password, salt);
             _context.User.Add(user);
             await _context.SaveChangesAsync();
-            //user.Password = null;
+            user.Password = null;
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
