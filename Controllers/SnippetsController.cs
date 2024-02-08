@@ -15,112 +15,155 @@ namespace Snipper_Snippet_API.Controllers
     [ApiController]
     public class SnippetsController : ControllerBase
     {
-        private readonly SnippetContext _context;
+        //private readonly SnippetContext _context; used for db but need to learn how to do in memory
 
-            public SnippetsController(SnippetContext context)
+        public static List<Snippet> snippets = new List<Snippet>();
+
+        public static int idTracker = snippets.Count();
+
+        private readonly ILogger<SnippetsController> _logger;
+
+            public SnippetsController(ILogger<SnippetsController> logger)
         {
-            _context = context;
+            _logger = logger;
         }
 
         // GET: api/Snippets
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Snippet>>> GetSnippets()
+        public ActionResult<List<Snippet>> GetSnippets()
         {
-          if (_context.Snippets == null)
+            List<Snippet> allSnippets = snippets.ToList();
+            return allSnippets;
+          /* Applied with DB
+           * if (_context.Snippets == null)
           {
               return NotFound();
           }
-            return await _context.Snippets.ToListAsync();
+            return await _context.Snippets.ToListAsync();*/
         }
 
         // GET: api/Snippets/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Snippet>> GetSnippet(int id)
+        public ActionResult<Snippet> GetSnippet(int id)
         {
-          if (_context.Snippets == null)
-          {
-              return NotFound();
-          }
-            var snippet = await _context.Snippets.FindAsync(id);
+            Snippet? findSnippet = snippets.Find(snippet => snippet.Id == id);
 
-            if (snippet == null)
+            if (findSnippet == null)
+            {
+                return NotFound("Snippet not found.");
+            }
+
+            return findSnippet;
+            /*if (_context.Snippets == null)
             {
                 return NotFound();
             }
+              var snippet = await _context.Snippets.FindAsync(id);
 
-            snippet.Code = Decrypt(snippet.Code);
+              if (snippet == null)
+              {
+                  return NotFound();
+              }
 
-            return snippet;
+              snippet.Code = Decrypt(snippet.Code);
+
+              return snippet;*/
         }
 
         // PUT: api/Snippets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSnippet(int id, Snippet snippet)
+        public ActionResult<Snippet> PutSnippet(int id, [FromBody] Snippet snippet)
         {
-            if (id != snippet.Id)
+            Snippet? findSnippet = snippets.Find(snippet => snippet.Id == id);
+
+            if (findSnippet == null)
             {
-                return BadRequest();
+                return NotFound("Snippet not found.");
             }
 
-            _context.Entry(snippet).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SnippetExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            findSnippet.Code = snippet.Code;
+            findSnippet.Language = snippet.Language;
 
             return NoContent();
+
+            
+            /*   if (id != snippet.Id)
+               {
+                   return BadRequest();
+               }
+
+               _context.Entry(snippet).State = EntityState.Modified;
+
+               try
+               {
+                   await _context.SaveChangesAsync();
+               }
+               catch (DbUpdateConcurrencyException)
+               {
+                   if (!SnippetExists(id))
+                   {
+                       return NotFound();
+                   }
+                   else
+                   {
+                       throw;
+                   }
+               }
+
+               return NoContent();*/
         }
 
         // POST: api/Snippets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Snippet>> PostSnippet(Snippet snippet)
+        public ActionResult<Snippet> PostSnippet(Snippet snippet)
         {
-            string EncryptCode = Encrypt(snippet.Code);
+            snippet.Id = ++idTracker;
+
+            snippets.Add(snippet);
+            return CreatedAtAction(nameof(GetSnippet), new { id = snippet.Id }, snippet);
+            /*string EncryptCode = Encrypt(snippet.Code);
             snippet.Code = EncryptCode;
             _context.Snippets.Add(snippet);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetSnippet), new { id = snippet.Id }, snippet);
+            return CreatedAtAction(nameof(GetSnippet), new { id = snippet.Id }, snippet);*/
         }
 
         // DELETE: api/Snippets/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSnippet(int id)
+        public ActionResult DeleteSnippet(int id)
         {
-            if (_context.Snippets == null)
-            {
-                return NotFound();
-            }
-            var snippet = await _context.Snippets.FindAsync(id);
-            if (snippet == null)
-            {
-                return NotFound();
-            }
+            Snippet? findSnippet = snippets.Find(snippet => snippet.Id == id);
 
-            _context.Snippets.Remove(snippet);
-            await _context.SaveChangesAsync();
-
+            if (findSnippet == null)
+            {
+                return NotFound("Snippet not found.");
+            }
+            snippets.Remove(findSnippet);
             return NoContent();
+
+            /* if (_context.Snippets == null)
+             {
+                 return NotFound();
+             }
+             var snippet = await _context.Snippets.FindAsync(id);
+             if (snippet == null)
+             {
+                 return NotFound();
+             }
+
+             _context.Snippets.Remove(snippet);
+             await _context.SaveChangesAsync();
+
+             return NoContent();*/
         }
 
-        private bool SnippetExists(int id)
+        /*private bool SnippetExists(int id)
         {
             return (_context.Snippets?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
+        }*/
         private string Encrypt(string plainText)
         {
             byte[] key = Encoding.UTF8.GetBytes("temporary_secret_key");
