@@ -18,7 +18,7 @@ namespace Snipper_Snippet_API.Controllers
 
         private readonly IdentityService _identityService;
 
-        public UsersController(SnippetContext context)
+        public UsersController(IdentityService identityService)
         {
             _context = context;
         }

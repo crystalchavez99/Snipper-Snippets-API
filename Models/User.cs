@@ -6,11 +6,11 @@
         public required string Email { get; set; }
         public required string Password { get; set; }
 
-        public User(int id, string email, string password)
+        /*public User(int id, string email, string password)
         {
             this.Id = id;
             this.Email = email;
             this.Password = password;
-        }
+        }*/
     }
 }
