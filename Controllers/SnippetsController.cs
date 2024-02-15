@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Snipper_Snippet_API.Models;
+using Snipper_Snippet_API.Utilities;
 
 namespace Snipper_Snippet_API.Controllers
 {
@@ -17,22 +13,31 @@ namespace Snipper_Snippet_API.Controllers
     {
         //private readonly SnippetContext _context; used for db but need to learn how to do in memory
 
-        public static List<Snippet> snippets = new List<Snippet>();
+        public static List<Snippet> snippets = new List<Snippet>(); // list of all snippets
 
-        public static int idTracker = snippets.Count();
+        public static int idTracker = snippets.Count(); // length determins id
 
-        private readonly ILogger<SnippetsController> _logger;
+        private readonly ILogger<SnippetsController> _logger; // regards to context but in memory
 
-            public SnippetsController(ILogger<SnippetsController> logger)
+        private readonly EncryptDecrypt _encryptUtility;
+
+            public SnippetsController(ILogger<SnippetsController> logger, EncryptDecrypt encryptUtility)
         {
             _logger = logger;
+            _encryptUtility = encryptUtility; // allows usage of functions
         }
 
         // GET: api/Snippets
         [HttpGet]
         public ActionResult<List<Snippet>> GetSnippets()
         {
-            List<Snippet> allSnippets = snippets.ToList();
+            List<Snippet> decodeSnippets = snippets.ConvertAll<Snippet>(snippet => new Snippet
+            {
+                Id = snippet.Id,
+                Code = _encryptUtility.Decrypt(snippet.Code),
+                Language = snippet.Language,
+            });
+            List<Snippet> allSnippets = decodeSnippets.ToList();
             return allSnippets;
           /* Applied with DB
            * if (_context.Snippets == null)
@@ -53,7 +58,14 @@ namespace Snipper_Snippet_API.Controllers
                 return NotFound("Snippet not found.");
             }
 
-            return findSnippet;
+            Snippet decodedSnippet = new Snippet
+            {
+                Id = findSnippet.Id,
+                Code = _encryptUtility.Decrypt(findSnippet.Code),
+                Language = findSnippet.Language,
+            };
+
+            return decodedSnippet;
             /*if (_context.Snippets == null)
             {
                 return NotFound();
@@ -82,7 +94,7 @@ namespace Snipper_Snippet_API.Controllers
                 return NotFound("Snippet not found.");
             }
 
-            findSnippet.Code = snippet.Code;
+            findSnippet.Code = _encryptUtility.Encrypt(snippet.Code);
             findSnippet.Language = snippet.Language;
 
             return NoContent();
@@ -120,6 +132,8 @@ namespace Snipper_Snippet_API.Controllers
         public ActionResult<Snippet> PostSnippet(Snippet snippet)
         {
             snippet.Id = ++idTracker;
+
+            snippet.Code = _encryptUtility.Encrypt(snippet.Code);
 
             snippets.Add(snippet);
             return CreatedAtAction(nameof(GetSnippet), new { id = snippet.Id }, snippet);
@@ -164,49 +178,6 @@ namespace Snipper_Snippet_API.Controllers
         {
             return (_context.Snippets?.Any(e => e.Id == id)).GetValueOrDefault();
         }*/
-        private string Encrypt(string plainText)
-        {
-            byte[] key = Encoding.UTF8.GetBytes("temporary_secret_key");
-            byte[] iv = Encoding.UTF8.GetBytes("temporary_init_vector");
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = key;
-                aesAlg.IV = iv;
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-                using (MemoryStream msEncrypt = new MemoryStream())
-                {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            swEncrypt.Write(plainText);
-                        }
-                    }
-                    return Convert.ToBase64String(msEncrypt.ToArray());
-                }
-            }
-        }
 
-        public string Decrypt(string encryptedText)
-        {
-            byte[] key = Encoding.UTF8.GetBytes("temporary_secret_key");
-            byte[] iv = Encoding.UTF8.GetBytes("temporary_init_vector");
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = key;
-                aesAlg.IV = iv;
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(encryptedText)))
-                {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (StreamReader swEncrypt = new StreamReader(csDecrypt))
-                        {
-                            return swEncrypt.ReadToEnd();
-                        }
-                    }
-                }
-            }
-        }
     }
 }

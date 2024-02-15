@@ -14,7 +14,9 @@ namespace Snipper_Snippet_API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly SnippetContext _context;
+        //private readonly SnippetContext _context;
+
+        private readonly IdentityService _identityService;
 
         public UsersController(SnippetContext context)
         {
