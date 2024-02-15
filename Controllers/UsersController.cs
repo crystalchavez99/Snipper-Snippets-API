@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Snipper_Snippet_API.Models;
+using Snipper_Snippet_API.Service;
 
 namespace Snipper_Snippet_API.Controllers
 {
@@ -16,29 +17,35 @@ namespace Snipper_Snippet_API.Controllers
     {
         //private readonly SnippetContext _context;
 
-        private readonly IdentityService _identityService;
+        private readonly UserService _userService;
 
-        public UsersController(IdentityService identityService)
+        public UsersController(UserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUser()
+        /*[HttpGet]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
           if (_context.User == null)
           {
               return NotFound();
           }
             return await _context.User.ToListAsync();
-        }
+        }*/
 
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-          if (_context.User == null)
+            User? user = HttpContext.Items["User"] as User;
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            return Ok(new {Id = user.Id, Email = user.Email});
+         /* if (_context.User == null)
           {
               return NotFound();
           }
@@ -49,46 +56,52 @@ namespace Snipper_Snippet_API.Controllers
                 return NotFound();
             }
 
-            return user;
+            return user;*/
         }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
-        {
-            if (id != user.Id)
+            // PUT: api/Users/5
+            // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+            /*[HttpPut("{id}")]
+            public async Task<IActionResult> PutUser(int id, User user)
             {
-                return BadRequest();
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
+                if (id != user.Id)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
-                else
+
+                _context.Entry(user).State = EntityState.Modified;
+
+                try
                 {
-                    throw;
+                    await _context.SaveChangesAsync();
                 }
-            }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!UserExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
 
-            return NoContent();
-        }
+                return NoContent();
+            }*/
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+            // POST: api/Users
+            // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+            [HttpPost]
+            public ActionResult<User> CreateUser()
         {
-          if (_context.User == null)
+                User? user = HttpContext.Items["User"] as User;
+                if (user == null)
+                {
+                    return BadRequest();
+                }
+                return Ok(new {Id = user.Id, Email = user.Email});
+         /* if (_context.User == null)
           {
               return Problem("Entity set 'SnippetContext.User'  is null.");
           }
@@ -98,11 +111,11 @@ namespace Snipper_Snippet_API.Controllers
             await _context.SaveChangesAsync();
             user.Password = null;
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return CreatedAtAction("GetUser", new { id = user.Id }, user);*/
         }
 
         // DELETE: api/Users/5
-        [HttpDelete("{id}")]
+        /*[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             if (_context.User == null)
@@ -146,6 +159,6 @@ namespace Snipper_Snippet_API.Controllers
                 Array.Copy(hashBytes,0,combBytes,salt.Length,hashBytes.Length);
                 return Convert.ToBase64String(combBytes);
             }
-        }
+        }*/
     }
 }
