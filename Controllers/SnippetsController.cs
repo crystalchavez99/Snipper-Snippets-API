@@ -173,11 +173,5 @@ namespace Snipper_Snippet_API.Controllers
 
              return NoContent();*/
         }
-
-        /*private bool SnippetExists(int id)
-        {
-            return (_context.Snippets?.Any(e => e.Id == id)).GetValueOrDefault();
-        }*/
-
     }
 }
