@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,23 +20,29 @@ namespace Snipper_Snippet_API.Controllers
         //private readonly SnippetContext _context;
 
         private readonly UserService _userService;
+        private readonly JwtSettings _jwtSettings;
 
-        public UsersController(UserService userService)
+        public UsersController(UserService userService, JwtSettings jwtSettings)
         {
             _userService = userService;
+            _jwtSettings = jwtSettings;
         }
 
 
         // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        [HttpGet]
+        [Authorize]
+        public  ActionResult<User> GetUser()
         {
-            User? user = HttpContext.Items["User"] as User;
+            var user = User;
             if (user == null)
             {
-                return Unauthorized();
+                return Unauthorized(new { error = "Coudln't access data." });
             }
-            return Ok(new {Id = user.Id, Email = user.Email});
+            int Id = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"); 
+            string Email = user.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
+
+            return Ok(new {Id=Id, Email=Email});
          /* if (_context.User == null)
           {
               return NotFound();
@@ -73,6 +81,18 @@ namespace Snipper_Snippet_API.Controllers
             user.Password = null;
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);*/
+        }
+
+        [HttpPost("login")]
+        public ActionResult Login()
+        {
+            User? user = HttpContext.Items["User"] as User;
+            if (user == null)
+            {
+                return Unauthorized(new { error = "Invalid email or password" });
+            }
+            var token = _userService.GenerateToken(user);
+            return Ok(new {token, user.Id, user.Email});
         }
     }
 }
